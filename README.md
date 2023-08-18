@@ -1,12 +1,13 @@
 # Webdrivers
-Chromedriver 115+ support for Selenium 4 and webdrivers 5.2.0.
+This fork enables feature specs with Capybara to work with the latest build process and releases with Chromedriver. See the note at: https://chromedriver.chromium.org/. Adds 115+ support for Selenium 4 and webdrivers 5.2.0. This patch is needed if you use a `selenium-webdriver` gem > 4.0 but less than the latest release, and are relying on a `webdrivers` gem > 4.5.0.
 
-Credit to original fork (based on webdrivers 4.5.0) at: https://github.com/mascolim/webdrivers/tree/jsonendpoints
+Credit to original fork (based on `webdrivers` 4.5.0) at: https://github.com/mascolim/webdrivers/tree/jsonendpoints
+
 For a diff comparison, see: https://github.com/titusfortner/webdrivers/compare/main...mascolim:webdrivers:jsonendpoints
 
 To use, simply target this fork's git url.
 ```ruby
-gem 'webdrivers', git: "https://github.com/mascolim/webdrivers.git", branch: 'main'
+gem 'webdrivers', git: 'https://github.com/n8williams/webdrivers.git', branch: 'main'
 ```
 
 
@@ -17,8 +18,8 @@ Run Selenium tests more easily with automatic installation and updates for all s
 
 ## Update: Future of this Project
 
-With Google's new [Chrome for Testing](https://developer.chrome.com/blog/chrome-for-testing/) project, 
-and Selenium's new [Selenium Manager](https://www.selenium.dev/documentation/selenium_manager/) feature, 
+With Google's new [Chrome for Testing](https://developer.chrome.com/blog/chrome-for-testing/) project,
+and Selenium's new [Selenium Manager](https://www.selenium.dev/documentation/selenium_manager/) feature,
 what is required of this gem has changed.
 
 If you can update to the latest version of Selenium (4.11+), please do so and stop requiring this gem.
@@ -27,8 +28,8 @@ Provide feedback or raise issues to [Selenium Project](https://github.com/Seleni
 If you cannot upgrade to Selenium 4.11, Webdrivers 5.3.0 will continue to support Ruby 2.6+ and Selenium 4.0 - 4.10
 
 If you are using an older version of webdrivers gem, and cannot upgrade, you can set
-the required version of chromedriver to v114 (`Webdrivers::Chromedriver.required_version = '114.0.5735.90'`) and 
-[Disable the build check](https://www.selenium.dev/documentation/webdriver/browsers/chrome/#disabling-build-check). 
+the required version of chromedriver to v114 (`Webdrivers::Chromedriver.required_version = '114.0.5735.90'`) and
+[Disable the build check](https://www.selenium.dev/documentation/webdriver/browsers/chrome/#disabling-build-check).
 This is not guaranteed to continue working and will not receive bug fixes.
 
 **Webdrivers 6.0**
@@ -53,10 +54,10 @@ notes at the bottom.
 
 ## Usage
 
-In your Gemfile Replace:
+In your Gemfile use:
 
 ```ruby
-gem 'webdrivers', git: "https://github.com/mascolim/webdrivers.git", branch: 'main'
+gem 'webdrivers', git: 'https://github.com/n8williams/webdrivers.git', branch: 'main'
 ```
 
 In your project:
@@ -280,12 +281,12 @@ with the console font being changed when calling the old PowerShell (PS5).
 Webdrivers will detect WSLv2 as running on Linux and use Chrome on the Linux filesystem.
 
 WSLv2 doesn't support connecting to host ports out of the box, so it isn't possible to connect to Chromedriver on
-Windows without extra configurations, see: https://github.com/microsoft/WSL/issues/4619. The simplest way to use 
+Windows without extra configurations, see: https://github.com/microsoft/WSL/issues/4619. The simplest way to use
 Chromedriver with WSLv2 is to run Chrome headless on Linux.
 
 #### Chrome and Edge on Apple M1 (`arm64`)
 
-If you're switching from Intel to M1, you'll have to manually delete the existing Intel (`mac64`) driver before the 
+If you're switching from Intel to M1, you'll have to manually delete the existing Intel (`mac64`) driver before the
 M1 (`arm64`) build can be downloaded. Otherwise, you'll get an error: `Bad CPU type in executable - ~/.webdrivers/chromedriver (Errno::E086)`
 
 ## Wiki
