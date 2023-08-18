@@ -127,12 +127,30 @@ module Webdrivers
         Webdrivers.logger.debug "Decompressing #{filename}"
 
         Zip::File.open(filename) do |zip_file|
-          driver, f_path = driver_and_path(zip_file, driver_name)
+          if filename.include? 'chromedriver-'
+            driver = zip_file.get_entry('chromedriver-' + platform_code + '/' + driver_name)
+          else
+            driver = zip_file.get_entry(driver_name)
+          end
+          f_path = File.join(Dir.pwd, driver_name)
           delete(f_path)
           FileUtils.mkdir_p(File.dirname(f_path)) unless File.exist?(File.dirname(f_path))
           zip_file.extract(driver, f_path)
         end
         driver_name
+      end
+
+      def platform_code
+        if System.platform == 'win' || System.wsl_v1?
+          'win32'
+        elsif System.platform == 'linux'
+          'linux64'
+        elsif System.platform == 'mac'
+          apple_arch = apple_m1_architecture? ? 'mac-arm64' : 'mac-x64'
+          "#{apple_arch}"
+        else
+          raise 'Failed to determine driver filename to download for your OS.'
+        end
       end
 
       def driver_and_path(zip_file, driver_name)

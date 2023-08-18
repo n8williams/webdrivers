@@ -3,6 +3,7 @@
 require 'shellwords'
 require 'webdrivers/common'
 require 'webdrivers/chrome_finder'
+require 'json'
 
 module Webdrivers
   class Chromedriver < Common
@@ -31,12 +32,15 @@ module Webdrivers
           # Versions before 70 do not have a LATEST_RELEASE file
           return normalize_version('2.41') if browser_build_version < normalize_version('70')
 
+          current_build_major_version = current_build_version.segments[0] if current_build_version
+          browser_build_major_version = browser_build_version.segments[0] if browser_build_version
+
           # Cache check
           # Cached version should exist and be compatible with the current browser version.
           # Otherwise, fetch the latest compatible driver.
           latest_applicable = with_cache(file_name,
-                                         current_build_version,
-                                         browser_build_version) { latest_point_release(browser_build_version) }
+            current_build_major_version,
+            browser_build_major_version) { latest_point_release(browser_build_version) }
 
           Webdrivers.logger.debug "Latest version available: #{latest_applicable}"
           normalize_version(latest_applicable)
@@ -53,21 +57,30 @@ module Webdrivers
       alias chrome_version browser_version
 
       #
-      # Returns url with domain for calls to get this driver.
+      # Returns url with domain for calls to get this driver. For Chrome
+      # releases < 115.
       #
       # @return [String]
       def base_url
         'https://chromedriver.storage.googleapis.com'
       end
 
+      #
+      # Returns url with last known good version by release(milestone) number. Supports Chrome releases 113+
+      #
+      # @return [String]
+      def latest_milestone_url
+        'https://googlechromelabs.github.io/chrome-for-testing/latest-versions-per-milestone-with-downloads.json'
+      end
+
       private
 
       def latest_point_release(version)
         if version < normalize_version('115')
-          return normalize_version(Network.get(URI.join(base_url, "LATEST_RELEASE_#{version}")))
+          normalize_version(Network.get(URI.join(base_url, "LATEST_RELEASE_#{version}")))
+        else
+          normalize_version(JSON.parse(Network.get(latest_milestone_url))['milestones'][normalize_version(version).segments[0].to_s]['version'])
         end
-
-        latest_patch_version(version)
       rescue NetworkError
         msg = "Unable to find latest point release version for #{version}."
         msg = begin
@@ -85,6 +98,36 @@ module Webdrivers
                 'to a known chromedriver version: https://chromedriver.chromium.org/downloads/version-selection'
         Webdrivers.logger.debug msg
         raise VersionError, msg
+      end
+
+      def download_url
+        return @download_url if @download_url
+        driver_version = if required_version == EMPTY_VERSION
+                           latest_version
+                         else
+                           normalize_version(required_version)
+                         end
+        if driver_version < normalize_version('115')
+          filename = driver_filename(driver_version)
+          url = "#{base_url}/#{driver_version}/chromedriver_#{filename}.zip"
+          Webdrivers.logger.debug "chromedriver URL: #{url}"
+          @download_url = url
+        else
+          url = JSON.parse(Network.get(latest_milestone_url))['milestones'][normalize_version(driver_version).segments[0].to_s]['downloads']['chromedriver'][platform_code]['url']
+        end
+      end
+                
+      def platform_code
+        if System.platform == 'win' || System.wsl_v1?
+          3
+        elsif System.platform == 'linux'
+          0
+        elsif System.platform == 'mac'
+          apple_arch = System.apple_m1_architecture? ? 1 : 2
+          apple_arch
+        else
+          raise 'Failed to determine driver filename to download for your OS.'
+        end
       end
 
       def file_name

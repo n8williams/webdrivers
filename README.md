@@ -1,4 +1,14 @@
 # Webdrivers
+Chromedriver 115+ support for Selenium 4 and webdrivers 5.2.0.
+
+Credit to original fork (based on webdrivers 4.5.0) at: https://github.com/mascolim/webdrivers/tree/jsonendpoints
+For a diff comparison, see: https://github.com/titusfortner/webdrivers/compare/main...mascolim:webdrivers:jsonendpoints
+
+To use, simply target this fork's git url.
+```ruby
+gem 'webdrivers', git: "https://github.com/mascolim/webdrivers.git", branch: 'main'
+```
+
 
 [![Gem Version](https://badge.fury.io/rb/webdrivers.svg)](https://badge.fury.io/rb/webdrivers)
 ![Tests](https://github.com/titusfortner/webdrivers/workflows/Tests/badge.svg)
@@ -43,10 +53,10 @@ notes at the bottom.
 
 ## Usage
 
-In your Gemfile:
+In your Gemfile Replace:
 
 ```ruby
-gem 'webdrivers', '~> 5.0', require: false
+gem 'webdrivers', git: "https://github.com/mascolim/webdrivers.git", branch: 'main'
 ```
 
 In your project:
